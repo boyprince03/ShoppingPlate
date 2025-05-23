@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "登入";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // 若你有使用 Layout
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
+}
+
+<style>
+    body {
+        background-image: url('/images/loginbg.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+    }
+
+    .login-card {
+        max-width: 400px;
+        margin: 5% auto;
+        padding: 2rem;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+    }
+</style>
+
+<div class="login-card">
+    <h3 class="text-center mb-4">登入您的帳戶</h3>
+
+    <form asp-action="Login" asp-controller="Account" method="post">
+<input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input name="email" class="form-control" type="email" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">密碼</label>
+            <input name="password" class="form-control" type="password" required />
+        </div>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Error))
+        {
+                <div class="alert alert-danger text-center">@ViewBag.Error</div>
+        }
+
+        <button type="submit" class="btn btn-primary w-100">登入</button>
+    </form>
+
+    <div class="text-center mt-3">
+        尚未註冊？<a href="/Account/Register">建立帳號</a>
+    </div>
+</div>

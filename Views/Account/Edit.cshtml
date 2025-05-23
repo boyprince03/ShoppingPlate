@@ -1,0 +1,47 @@
+﻿@model ShoppingPlate.Models.User
+@{
+    ViewData["Title"] = "修改帳號資訊";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2 class="mb-4">修改帳號資訊</h2>
+
+    @if (TempData["Success"] != null)
+    {
+            <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="Username" class="form-label">姓名</label>
+            <input asp-for="Username" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label">電話</label>
+            <input asp-for="Phone" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">密碼</label>
+            <input asp-for="Password" class="form-control" type="password" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label">住址</label>
+            <input asp-for="Address" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">儲存變更</button>
+        <a href="/Account/Settings" class="btn btn-primary">回設定</a>
+
+
+    </form>
+</div>

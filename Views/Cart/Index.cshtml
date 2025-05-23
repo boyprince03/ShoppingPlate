@@ -1,0 +1,187 @@
+﻿@model List<ShoppingPlate.Models.CartItem>
+@{
+	ViewData["Title"] = "購物車";
+	var total = Model.Sum(i => i.Product.Price * i.Quantity);
+}
+
+<h2>我的購物車</h2>
+@* 主頁面 *@
+@if (!Model.Any())
+{
+		<div class="alert alert-info">購物車是空的</div>
+		<div class="d-flex gap-2">
+			<a class="btn btn-secondary" href="/">🔙 繼續購物</a>
+		</div>
+}
+else
+{
+		<table class="table">
+			<thead>
+				<tr>
+					<th>商品</th>
+					<th>數量</th>
+					<th>單價</th>
+					<th>小計</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+			@foreach (var item in Model)
+			{
+				var subtotal = item.Product.Price * item.Quantity;
+					<tr>
+						<td>@item.Product.Name</td>
+						<td>
+							<form asp-action="UpdateQuantity" method="post" class="d-inline-flex align-items-center">
+								<input type="hidden" name="cartItemId" value="@item.Id" />
+								<input type="number"
+								   name="quantity"
+								   value="@item.Quantity"
+								   min="1"
+								   class="form-control me-2 quantity-input"
+								   data-original="@item.Quantity"
+								   data-price="@item.Product.Price"
+								   data-target="#subtotal-@item.Id"
+								   style="width: 80px;" />
+								<button type="submit" class="btn btn-primary btn-sm update-button" id="update-btn-@item.Id">更新</button>
+							</form>
+						</td>
+						<td>$@item.Product.Price</td>
+						<td>$<span id="subtotal-@item.Id" class="subtotal main-subtotal">@subtotal</span></td>
+						<td>
+							<form asp-action="RemoveFromCart" method="post" class="d-inline">
+								<input type="hidden" name="cartItemId" value="@item.Id" />
+								<button type="submit" class="btn btn-danger btn-sm">移除</button>
+							</form>
+						</td>
+					</tr>
+			}
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="3" class="text-end"><strong>總金額：</strong></td>
+					<td colspan="2"><strong>$<span id="grand-total">@total.ToString("0.00")</span></strong></td>
+				</tr>
+			</tfoot>
+		</table>
+		<div class="d-flex gap-2">
+			<a class="btn btn-secondary" href="/">繼續購物</a>
+			<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">前往結帳</button>
+		</div>
+}
+
+@* Modal彈出視窗，確認金額及最後數量修改 *@
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<form method="post" asp-action="ConfirmBeforeCheckout">
+				<div class="modal-header">
+					<h5 class="modal-title" id="confirmModalLabel">確認訂單內容</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+				</div>
+				<div class="modal-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>商品</th>
+								<th>數量</th>
+								<th>單價</th>
+								<th>小計</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (int i = 0; i < Model.Count; i++)
+							{
+								var subtotal = Model[i].Product.Price * Model[i].Quantity;
+								<tr>
+									<td>@Model[i].Product.Name</td>
+									<td>
+										<input type="hidden" name="cartItems[@i].Id" value="@Model[i].Id" />
+										<input type="number"
+										   name="cartItems[@i].Quantity"
+										   value="@Model[i].Quantity"
+										   class="form-control quantity-input"
+										   min="1"
+										   data-price="@Model[i].Product.Price"
+										   data-target="#modal-subtotal-@Model[i].Id"
+										   data-original="@Model[i].Quantity"
+										   style="width: 80px;" />
+									</td>
+									<td>$@Model[i].Product.Price</td>
+									<td>$<span id="modal-subtotal-@Model[i].Id" class="subtotal modal-subtotal">@subtotal</span></td>
+								</tr>
+							}
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="3" class="text-end"><strong>總金額：</strong></td>
+								<td><strong>$<span id="modal-grand-total"></span></strong></td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+					<button type="submit" class="btn btn-primary">確認送出並前往結帳</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+		<script>
+			//主畫面小計+總金額
+			function updateMainTotal() {
+				let total = 0;
+				document.querySelectorAll(".main-subtotal").forEach(function (span) {
+					const value = parseFloat(span.innerText) || 0;
+					total += value;
+				});
+				document.getElementById("grand-total").innerText = total.toFixed(2);
+			}
+			//modal畫面小計+總金額
+			function updateModalTotal() {
+				let total = 0;
+				document.querySelectorAll(".modal-subtotal").forEach(function (span) {
+					const value = parseFloat(span.innerText) || 0;
+					total += value;
+				});
+				document.getElementById("modal-grand-total").innerText = total.toFixed(2);
+			}
+			//更新數量到資料庫
+			document.addEventListener("DOMContentLoaded", function () {
+				document.querySelectorAll(".quantity-input").forEach(function (input) {
+					const original = parseInt(input.dataset.original);
+					const form = input.closest("form");
+					const button = form?.querySelector(".update-button");
+
+					input.addEventListener("input", function () {
+						const price = parseFloat(this.dataset.price);
+						const quantity = parseInt(this.value);
+						const subtotal = price * (isNaN(quantity) ? 0 : quantity);
+						const target = document.querySelector(this.dataset.target);
+						if (target) {
+							target.innerText = subtotal.toFixed(2);
+						}
+						//更新按鈕顏色提醒要更新
+						if (button) {
+							if (quantity !== original && !isNaN(quantity)) {
+								button.classList.remove("btn-primary");
+								button.classList.add("btn-danger");
+							} else {
+								button.classList.remove("btn-danger");
+								button.classList.add("btn-primary");
+							}
+						}
+
+						updateMainTotal();
+						updateModalTotal();
+					});
+				});
+				//先執行一次
+				updateMainTotal();
+				updateModalTotal();
+			});
+		</script>
+}

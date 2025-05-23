@@ -1,0 +1,52 @@
+﻿@model ShoppingPlate.Models.Order
+@{
+    ViewData["Title"] = "訂單完成";
+}
+
+<h2 class="text-success">訂單已完成！</h2>
+<p>我們已收到您的訂單，請靜待出貨通知。</p>
+
+<h4>訂單資訊</h4>
+<ul>
+    <li>訂單編號：@Model.Id</li>
+    <li>下單時間：@Model.OrderDate.ToString("yyyy/MM/dd HH:mm")</li>
+    <li>總金額：$@Model.TotalAmount</li>
+    <li>狀態：@Model.Status</li>
+</ul>
+
+<h4>顧客資訊</h4>
+<ul>
+    <li>姓名：@Model.CustomerName</li>
+    <li>電話：@Model.CustomerPhone</li>
+    <li>Email：@Model.CustomerEmail</li>
+    <li>地址：@Model.ShippingAddress</li>
+</ul>
+
+<h4>訂單明細</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>商品</th>
+            <th>數量</th>
+            <th>單價</th>
+            <th>小計</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>$@item.UnitPrice</td>
+                <td>$@(item.UnitPrice * item.Quantity)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a href="/" class="btn btn-outline-primary">返回首頁繼續購物</a>
+
+
+
+
+

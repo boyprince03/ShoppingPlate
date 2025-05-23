@@ -1,0 +1,13 @@
+﻿@model ShoppingPlate.Models.User
+@{
+    ViewData["Title"] = "升級為賣家";
+}
+
+<h2> 開啟賣家功能</h2>
+
+<p>使用者名稱：@Model.Username</p>
+<p>目前角色：@Model.LoginRole</p>
+
+<form asp-action="UpgradeToSellerConfirm" method="post">
+    <button type="submit" class="btn btn-warning">我要升級為賣家</button>
+</form>

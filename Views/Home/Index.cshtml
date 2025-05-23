@@ -1,0 +1,83 @@
+﻿@model List<ShoppingPlate.Models.Product>
+@{
+    ViewData["Title"] = "首頁";
+    var selectedCategory = Context.Request.Query["category"].ToString();
+}
+
+<style>
+    body {
+    /* background-image: url('/images/homebg.png'); */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    }
+
+    .card img {
+    background-color: #f8f9fa;
+    }
+</style>
+
+<div class="container mt-4">
+
+    <!-- Hero Banner -->
+    <div class="jumbotron bg-light p-4 rounded text-center mb-5 shadow">
+        <h1 class="display-5">Welcome to <span class="text-primary">Ez購</span>！</h1>
+        <p class="lead">EASY LIFE， EZ GO！ WE HAVE WHATEVER YOU WANT！</p>
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="/Account/Register" class="btn btn-primary">立即註冊享好康</a>
+        }
+    </div>
+
+    <!-- 商品搜尋 -->
+    <form asp-controller="Product" asp-action="Search" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="query" class="form-control" placeholder="搜尋商品名稱或品牌..." />
+            <button class="btn btn-outline-secondary" type="submit">🔍 搜尋</button>
+        </div>
+    </form>
+
+    <h2 class="mb-4">商品瀏覽</h2>
+
+    <!-- 分類篩選 -->
+    <form method="get" class="mb-4">
+        <label class="me-2"><strong>分類：</strong></label>
+        <select name="category" onchange="this.form.submit()" class="form-select d-inline-block w-auto">
+            <option value="">全部</option>
+            @foreach (var c in ViewBag.Categories)
+            {
+                <option value="@c.Name" selected="@(selectedCategory == c.Name ? "selected" : null)">
+                    @c.Name
+                </option>
+            }
+        </select>
+    </form>
+
+    <!-- 商品清單 -->
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                               <img src="@(
+            !string.IsNullOrEmpty(item.Images?.FirstOrDefault()?.Url)
+                ? Url.Content(item.Images.First().Url)
+                : Url.Content("~/images/noimage.png")
+            )"
+                 class="card-img-top"
+                 style="max-height: 200px; object-fit: contain;"
+                 alt="@item.Name" />
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="card-text text-danger fw-bold">NT$ @item.Price</p>
+
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-auto">
+                                <input type="hidden" name="productId" value="@item.Id" />
+                                <button type="submit" class="btn btn-primary w-100">加入購物車</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+        }
+    </div>
+</div>

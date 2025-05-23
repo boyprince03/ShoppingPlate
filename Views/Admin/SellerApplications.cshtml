@@ -1,0 +1,33 @@
+﻿@model List<ShoppingPlate.Models.SellerApplication>
+
+<h2> 賣家申請審核</h2>
+
+@foreach (var app in Model)
+{
+        <div class="card mb-3">
+            <div class="card-header">
+                    申請人：@app.User.Username (@app.User.Email) ｜ 商店：@app.StoreName ｜ 
+                狀態：<span class="badge @(app.Status == ApplicationStatus.Approved ? "bg-success" : app.Status == ApplicationStatus.Rejected ? "bg-danger" : "bg-secondary")">
+                @app.Status
+                </span>
+            </div>
+            <div class="card-body">
+                申請時間：@app.ApplyDate.ToString("yyyy-MM-dd HH:mm")<br />
+            @if (app.Status == ApplicationStatus.Pending)
+            {
+                        <form method="post" asp-controller="Admin" asp-action="ApproveSeller" class="mt-2">
+                            <input type="hidden" name="id" value="@app.Id" />
+                            <button name="approve" value="true" class="btn btn-success me-2">核准</button>
+                            <button name="approve" value="false" class="btn btn-danger">駁回</button>
+                        </form>
+            }
+            else
+            {
+                        <div class="mt-2">
+                            <strong>審核結果：</strong>@app.Status<br />
+                            <strong>時間：</strong>@app.ResponseDate?.ToString("yyyy-MM-dd HH:mm")
+                        </div>
+            }
+            </div>
+        </div>
+}

@@ -1,0 +1,77 @@
+﻿@model List<ShoppingPlate.Models.Order>
+@{
+    ViewData["Title"] = "訂單查詢結果";
+}
+
+<h2>查詢結果</h2>
+@if (TempData["CancelMessage"] != null)
+{
+        <div class="alert alert-success">
+        @TempData["CancelMessage"]
+        </div>
+}
+
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">查無符合訂單，請確認姓名與電話是否正確。</div>
+}
+else
+{
+    foreach (var order in Model)
+    {
+        @if (order.Status == "處理中")
+        {
+                          <div class="card mb-4">
+                                <div class="card-header">
+                                    訂單編號：@order.Id ｜ 狀態：@order.Status ｜ 時間：@order.OrderDate.ToString("yyyy/MM/dd HH:mm")
+                                                            <form asp-action="Cancel" method="post" class="mt-2">
+                            <input type="hidden" name="id" value="@order.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">取消訂單</button>
+                        </form>
+                                </div>
+                                <div class="card-body">
+                                    <ul>
+                        @foreach (var item in order.OrderDetails)
+                        {
+                                                    <li>
+                                                        商品：@item.Product.Name ｜ 數量：@item.Quantity ｜ 單價：$@item.UnitPrice
+                                                    </li>
+                        }
+                                    </ul>
+                                    <strong>總金額：$@order.TotalAmount</strong>
+                                </div>
+                            </div>
+
+        }
+        else
+        {
+                          <div class="card mb-4">
+                                <div class="card-header">
+                                    訂單編號：@order.Id ｜ 狀態：@order.Status ｜ 時間：@order.OrderDate.ToString("yyyy/MM/dd HH:mm")
+                                </div>
+                                <div class="card-body">
+                                    <ul>
+                        @foreach (var item in order.OrderDetails)
+                        {
+                                                    <li>
+                                                        商品：@item.Product.Name ｜ 數量：@item.Quantity ｜ 單價：$@item.UnitPrice
+                                                    </li>
+                        }
+                                    </ul>
+                                    <strong>總金額：$@order.TotalAmount</strong>
+                                </div>
+                            </div>
+        }
+      
+    }
+}
+@if (ViewData["Source"]?.ToString() == "QuickLookup")
+{
+        <a href="/" class="btn btn-outline-secondary">🔙 回首頁</a>
+}
+else
+{
+        <a asp-controller="Checkout" asp-action="Query" class="btn btn-outline-primary">返回查詢</a>
+}
+

@@ -1,0 +1,75 @@
+﻿@model ShoppingPlate.Models.User
+@{
+    ViewData["Title"] = "註冊";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    body {
+        background-image: url('/images/registerbg.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+    }
+
+    .register-card {
+        max-width: 450px;
+        margin: 5% auto;
+        padding: 2rem;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+</style>
+
+<div class="register-card">
+    <h3 class="text-center mb-4">建立新帳戶</h3>
+
+    <form asp-action="Register" asp-controller="Account" method="post" novalidate>
+        <div class="mb-3">
+            <label asp-for="Username" class="form-label"></label>
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary w-100">註冊</button>
+    </form>
+
+    <div class="text-center mt-3">
+        已經有帳號了？<a href="/Account/Login">前往登入</a>
+    </div>
+</div>
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+}

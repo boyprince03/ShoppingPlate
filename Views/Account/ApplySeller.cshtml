@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "申請成為賣家";
+}
+
+<h2>📝 成為賣家申請</h2>
+
+<form asp-action="ApplySeller" method="post">
+    <div class="mb-3">
+        <label>商店名稱</label>
+        <input name="storeName" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">提交申請</button>
+</form>

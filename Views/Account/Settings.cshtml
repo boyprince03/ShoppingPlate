@@ -1,0 +1,53 @@
+﻿@model ShoppingPlate.Models.User
+@{
+    ViewData["Title"] = "帳號設定";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2 class="mb-4">⚙️ 帳號設定</h2>
+
+    <div class="card p-4 shadow-sm">
+        <dl class="row">
+            <dt class="col-sm-4">身分：</dt>
+<dd class="col-sm-8">
+                @switch (Model.LoginRole)
+                {
+                    case UserRole.Admin:
+                    <span class="badge bg-danger">管理員</span>
+                        break;
+                    case UserRole.Seller:
+                    <span class="badge bg-success">賣家</span>
+                        break;
+                    case UserRole.Customer:
+                    default:
+                    <span class="badge bg-secondary">顧客</span>
+                        break;
+                }
+</dd>
+
+
+
+            <dt class="col-sm-4">姓名</dt>
+            <dd class="col-sm-8">@Model.Username</dd>
+
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">@Model.Email</dd>
+
+            <dt class="col-sm-4">電話</dt>
+            <dd class="col-sm-8">@Model.Phone</dd>
+        </dl>
+
+        <div class="d-flex gap-2 mt-3">
+            <a href="/Account/Edit" class="btn btn-outline-primary w-50">✏️ 編輯帳號</a>
+
+            @if (Model.LoginRole != UserRole.Seller && Model.LoginRole != UserRole.Admin)
+            {
+                        <a href="/Account/UpgradeToSeller" class="btn btn-success w-50">⬆️ 升級成賣家</a>
+            }
+            else
+            {
+                        <button class="btn btn-secondary w-50" disabled>✅ 已是賣家</button>
+            }
+        </div>
+    </div>
+</div>

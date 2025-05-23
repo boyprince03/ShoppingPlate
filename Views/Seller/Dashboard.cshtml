@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "賣家控制台";
+}
+
+<h2>歡迎 @ViewBag.SellerName</h2>
+<p>這是賣家的後台首頁，之後可加入訂單、商品管理功能。</p>
+@model IEnumerable<ShoppingPlate.Models.Product>
+
+<h2>賣家後台</h2>
+
+
+@if (!Model.Any())
+{
+        <div class="alert alert-info">尚未上架任何商品</div>
+}
+else
+{
+        <h4>我的商品列表</h4>
+        <div class="row">
+        @foreach (var product in Model)
+        {
+                    <div class="col-md-4 mb-3">
+                                <div class="card h-100"> @* 商品卡片 *@
+                           @* 圖片邏輯 *@
+                    @if (product.Images != null && product.Images.Any())
+                    {
+                        <img src="@product.Images.First().Url" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="text-center p-5 text-muted">無圖片</div>
+                    }
+                    @* 商品內容 *@
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text">價格：$@product.Price</p>
+                                <p class="card-text">庫存：@product.Stock</p>
+                                <p class="card-text"><span class="badge @(product.IsPublished ? "bg-success" : "bg-secondary")">@(product.IsPublished ? "已上架" : "未上架")</span></p>
+                            </div>
+                        </div>
+                    </div>
+        }
+        </div>
+}
+
+
+
+<div class="mt-4">
+    <a href="/Seller/Orders" class="btn btn-primary">查看訂單</a>
+    <a href="@Url.Action("Create", "Product")" class="btn btn-success">
+        上架新商品
+    </a>
+</div>
+
+
+@if (User.IsInRole("Seller") || User.IsInRole("Admin"))
+{
+        <a asp-controller="Seller" asp-action="Dashboard" class="btn btn-primary">
+            前往 Seller Dashboard
+        </a>
+}

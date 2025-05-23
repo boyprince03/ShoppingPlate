@@ -1,0 +1,70 @@
+﻿@model List<ShoppingPlate.Models.Order>
+@{
+    ViewData["Title"] = "賣家訂單查詢";
+}
+
+<h2>賣家收到的訂單</h2>
+@if (TempData["Success"] != null)
+{
+        <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+        <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+
+@if (!Model.Any())
+{
+        <div class="alert alert-info">目前尚無訂單。</div>
+}
+else
+{
+    foreach (var order in Model)
+    {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        訂單編號：@order.Id ｜ 狀態：@order.Status ｜ 日期：@order.OrderDate.ToShortDateString()
+                                <div class="card-body">
+            <ul>
+                        @foreach (var item in order.OrderDetails)
+                        {
+                        <li>
+                            商品：@item.Product.Name <br />
+                            數量：@item.Quantity <br />
+                            單價：$@item.UnitPrice
+                        </li>
+                        }
+            </ul>
+            <strong>總金額：$@order.TotalAmount</strong>
+
+            <div class="mt-2">
+                <!-- 更新狀態 Form -->
+                <form asp-action="UpdateStatus" asp-controller="Seller" method="post" class="d-inline">
+                    <input type="hidden" name="orderId" value="@order.Id" />
+                    <select name="status" class="form-select d-inline w-auto">
+                        <option value="處理中" selected="@("處理中" == order.Status)">處理中</option>
+                        <option value="已出貨" selected="@("已出貨" == order.Status)">已出貨</option>
+                        <option value="已完成" selected="@("已完成" == order.Status)">已完成</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">更新狀態</button>
+                </form>
+
+                <!-- 取消訂單 Form -->
+                        @if (order.Status == "處理中")
+                        {
+                        <form asp-action="CancelOrder" asp-controller="Seller" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">取消訂單</button>
+                        </form>
+                        }
+            </div>
+        </div>
+
+                    </div>
+
+                </div>
+                 
+    }
+}
+
