@@ -29,9 +29,9 @@ namespace ShoppingPlate.Models
         [Required]
         [NotMapped]
         [Compare("Password", ErrorMessage = "兩次輸入的密碼不一致")]
-        public string ConfirmPassword { get; set; } = string.Empty;
+        public string? ConfirmPassword { get; set; }
 
-        [Required]
+
         public string Address { get; set; } = string.Empty;
 
         public UserRole LoginRole { get; set; } = UserRole.Customer;

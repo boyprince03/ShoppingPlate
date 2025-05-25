@@ -2,6 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using ShoppingPlate.Data;
 using ShoppingPlate.Models;
+using Microsoft.AspNetCore.Authorization;
+
+//[Authorize(Roles = "Admin")]
 
 public class AdminController : Controller
 {

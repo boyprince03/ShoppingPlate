@@ -1,0 +1,18 @@
+# 建置階段
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# 複製 csproj 並還原相依套件
+COPY *.csproj ./
+RUN dotnet restore
+
+# 複製其他原始碼並建構
+COPY . ./
+RUN dotnet publish -c Release -o /app/publish
+
+# 執行階段
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "ShoppingPlate.dll"]

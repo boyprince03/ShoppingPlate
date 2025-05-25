@@ -11,4 +11,7 @@ dotnet ef migrations remove
 dotnet ef database update --verbose
 //刪除資料庫
 dotnet ef database drop
-dotnet ef database drop --force --yes
+dotnet ef database drop --force
+
+git 指令集
+

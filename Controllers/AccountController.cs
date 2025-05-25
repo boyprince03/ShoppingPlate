@@ -1,12 +1,13 @@
-﻿// Controllers/AccountController.cs
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingPlate.Models;
 using ShoppingPlate.Data;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 public class AccountController : Controller
 {
@@ -17,32 +18,39 @@ public class AccountController : Controller
         _context = context;
     }
 
-    // 註冊頁面
+    // ✅ 登入認證方法
+    private async Task SignInUser(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.LoginRole.ToString()),
+            new Claim("UserId", user.Id.ToString())
+        };
+
+        var identity = new ClaimsIdentity(claims, "MyCookieAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync("MyCookieAuth", principal);
+
+        HttpContext.Session.SetInt32("UserId", user.Id);
+        HttpContext.Session.SetString("Username", user.Username);
+        HttpContext.Session.SetInt32("LoginRole", (int)user.LoginRole);
+    }
+
+    // ✅ 註冊頁面
     [HttpGet]
     public IActionResult Register() => View();
 
     [HttpPost]
-    public IActionResult Register(User user)
+    public async Task<IActionResult> Register(User user)
     {
         user.Address = "你的住址";
-        Console.WriteLine($"💡 Address = {user.Address}");
 
         if (!ModelState.IsValid)
-        {
-            Console.WriteLine("🔍 ModelState 無效！");
-            foreach (var error in ModelState)
-            {
-                Console.WriteLine($"欄位：{error.Key}");
-                foreach (var err in error.Value.Errors)
-                {
-                    Console.WriteLine($"❌ 錯誤：{err.ErrorMessage}");
-                }
-            }
-            return View(user); // ⚠️ 錯誤的話不應繼續執行後續
-        }
+            return View(user);
 
-        var exists = _context.Users.Any(u => u.Email == user.Email);
-        if (exists)
+        if (_context.Users.Any(u => u.Email == user.Email))
         {
             ModelState.AddModelError("Email", "Email 已註冊過！");
             return View(user);
@@ -53,34 +61,20 @@ public class AccountController : Controller
         try
         {
             _context.Users.Add(user);
-            Console.WriteLine($"✅ Password = {user.Password}");
-            Console.WriteLine($"✅ ConfirmPassword = {user.ConfirmPassword}");
-
-            _context.SaveChanges();
-            Console.WriteLine("✅ 新增成功，ID：" + user.Id);
+            await _context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine("❌ 儲存失敗：" + ex.Message);
-            return View(user); // ⚠️ 儲存失敗也該 return View(user)
+            return View(user);
         }
 
-        HttpContext.Session.SetInt32("UserId", user.Id);
-        HttpContext.Session.SetString("Username", user.Username);
-        HttpContext.Session.SetInt32("LoginRole", (int)user.LoginRole);
+        await SignInUser(user);
 
-        switch (user.LoginRole)
-        {
-            case UserRole.Admin:
-                return RedirectToAction("Dashboard", "Admin");
-            case UserRole.Seller:
-                return RedirectToAction("Dashboard", "Seller");
-            default:
-                return RedirectToAction("Index", "Home");
-        }
+        return RedirectToAction("Index", "Home");
     }
 
-
+    // ✅ 登入畫面
     [HttpGet]
     public IActionResult Login(string? returnUrl)
     {
@@ -88,9 +82,8 @@ public class AccountController : Controller
         return View();
     }
 
-
     [HttpPost]
-    public IActionResult Login(string email, string password, string? returnUrl)
+    public async Task<IActionResult> Login(string email, string password, string? returnUrl)
     {
         var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
 
@@ -100,19 +93,11 @@ public class AccountController : Controller
             return View();
         }
 
-        // 登入成功 → 設定 Session
-        HttpContext.Session.SetInt32("UserId", user.Id);
-        HttpContext.Session.SetString("Username", user.Username);
-        HttpContext.Session.SetInt32("LoginRole", (int)user.LoginRole);
-        HttpContext.Session.SetString("IsLoggedIn", "true");
+        await SignInUser(user);
 
-        // 若有 returnUrl（例如設定頁進來的），優先導回原頁
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-        {
             return Redirect(returnUrl);
-        }
 
-        // ✅ 沒 returnUrl 才導向對應角色頁面
         return user.LoginRole switch
         {
             UserRole.Admin => RedirectToAction("Dashboard", "Admin"),
@@ -121,34 +106,14 @@ public class AccountController : Controller
         };
     }
 
-
-    [HttpPost]
-    public async Task<IActionResult> UpgradeToSellerConfirm()
-    {
-        int? userId = HttpContext.Session.GetInt32("UserId");
-        if (userId == null)
-            return RedirectToAction("Login");
-
-        var user = await _context.Users.FindAsync(userId.Value);
-        if (user == null)
-            return NotFound();
-
-        user.LoginRole = UserRole.Seller;
-        await _context.SaveChangesAsync();
-
-        HttpContext.Session.SetInt32("LoginRole", (int)user.LoginRole); // 重寫 Session
-
-        TempData["Success"] = "成功開啟賣家功能！";
-        return RedirectToAction("Dashboard", "Seller");
-    }
-
-    //Logout
-    public IActionResult Logout()
+    // ✅ 登出
+    public async Task<IActionResult> Logout()
     {
         HttpContext.Session.Clear();
+        await HttpContext.SignOutAsync("MyCookieAuth");
         return RedirectToAction("Index", "Home");
     }
-    //edit User info
+
     [HttpGet]
     public async Task<IActionResult> Edit()
     {
@@ -170,7 +135,6 @@ public class AccountController : Controller
         var user = await _context.Users.FindAsync(userId);
         if (user == null) return NotFound();
 
-        // 更新欄位
         user.Username = updatedUser.Username;
         user.Phone = updatedUser.Phone;
         user.Email = updatedUser.Email;
@@ -178,21 +142,20 @@ public class AccountController : Controller
 
         if (!string.IsNullOrEmpty(updatedUser.Password))
         {
-            user.Password = updatedUser.Password; // ⚠️ 實務上應加密
+            user.Password = updatedUser.Password;
         }
 
         await _context.SaveChangesAsync();
         TempData["Success"] = "資料已更新！";
         return RedirectToAction("Edit");
     }
+
     [HttpGet]
     public IActionResult Settings()
     {
         var userId = HttpContext.Session.GetInt32("UserId");
-
         if (userId == null)
         {
-            // 用 Session 判斷是否登入
             return Redirect($"/Account/Login?returnUrl=/Account/Settings");
         }
 
@@ -202,12 +165,31 @@ public class AccountController : Controller
         return View(user);
     }
 
-    //seller審核申請
-    [HttpGet]
-    public IActionResult ApplySeller()
+    [HttpPost]
+    public async Task<IActionResult> UpgradeToSellerConfirm()
     {
-        return View();
+        int? userId = HttpContext.Session.GetInt32("UserId");
+        if (userId == null)
+            return RedirectToAction("Login");
+
+        var user = await _context.Users.FindAsync(userId.Value);
+        if (user == null)
+            return NotFound();
+
+        user.LoginRole = UserRole.Seller;
+        await _context.SaveChangesAsync();
+
+        HttpContext.Session.SetInt32("LoginRole", (int)user.LoginRole);
+
+        // ✅ 更新 Claims → 重新登入一次
+        await SignInUser(user);
+
+        TempData["Success"] = "成功開啟賣家功能！";
+        return RedirectToAction("Dashboard", "Seller");
     }
+
+    [HttpGet]
+    public IActionResult ApplySeller() => View();
 
     [HttpPost]
     public async Task<IActionResult> ApplySeller(string storeName)
@@ -235,19 +217,10 @@ public class AccountController : Controller
         TempData["Success"] = "申請已提交，請等待審核";
         return RedirectToAction("Index", "Home");
     }
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        return View(); // 對應 Views/Account/AccessDenied.cshtml
+    }
 
-    ////Upgrade to Seller
-    //[HttpGet]
-    //public async Task<IActionResult> UpgradeToSeller()
-    //{
-    //    int? userId = HttpContext.Session.GetInt32("UserId");
-    //    if (userId == null)
-    //        return RedirectToAction("Login");
-
-    //    var user = await _context.Users.FindAsync(userId.Value);
-    //    if (user == null || user.LoginRole == UserRole.Admin)
-    //        return Unauthorized();
-
-    //    return View(user);
-    //}
 }
