@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 public class ProductController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ShoppingPlate.Data.ApplicationDbContext _context;
     private readonly IWebHostEnvironment _env;
 
-    public ProductController(ShoppingPlateContext context, IWebHostEnvironment env)
+    public ProductController(ShoppingPlate.Data.ApplicationDbContext context, IWebHostEnvironment env)
     {
         _context = context;
         _env = env;
@@ -127,8 +127,117 @@ public class ProductController : Controller
         return RedirectToAction("Create");
     }
 
-//編輯商品: TODO
-//商品詳細資料列表: TODO
+    //編輯商品: 
+    [HttpGet]
+    public IActionResult Edit(int id)
+    {
+        var product = _context.Products
+            .Include(p => p.Images)
+            .FirstOrDefault(p => p.Id == id);
+
+        if (product == null) return NotFound();
+
+        // 權限檢查（可擴充）
+        var role = HttpContext.Session.GetString("Role");
+        if (role != "Admin" && role != "Seller")
+            return Forbid();
+
+        ViewBag.Categories = _context.Categories.ToList();
+        return View(product);
+    }
+    [HttpPost]
+    public async Task<IActionResult> Edit(Product product, List<IFormFile> imageFiles)
+    {
+        var role = HttpContext.Session.GetString("Role");
+        if (role != "Admin" && role != "Seller")
+            return Forbid();
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Categories = _context.Categories.ToList();
+            return View(product);
+        }
+
+        var dbProduct = _context.Products
+            .Include(p => p.Images)
+            .FirstOrDefault(p => p.Id == product.Id);
+
+        if (dbProduct == null) return NotFound();
+
+        // 更新欄位
+        dbProduct.Name = product.Name;
+        dbProduct.Description = product.Description;
+        dbProduct.Price = product.Price;
+        dbProduct.Stock = product.Stock;
+        dbProduct.CategoryId = product.CategoryId;
+
+        // 圖片處理（簡易：清除舊圖，重上傳）
+        if (imageFiles != null && imageFiles.Count > 0)
+        {
+            dbProduct.Images.Clear();
+
+            var savePath = Path.Combine(_env.WebRootPath, "uploads");
+            if (!Directory.Exists(savePath)) Directory.CreateDirectory(savePath);
+
+            foreach (var file in imageFiles)
+            {
+                var ext = Path.GetExtension(file.FileName).ToLower();
+                var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                if (!allowed.Contains(ext)) continue;
+
+                var fileName = Guid.NewGuid() + ext;
+                var fullPath = Path.Combine(savePath, fileName);
+
+                using var stream = new FileStream(fullPath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                dbProduct.Images.Add(new ProductImage { Url = fileName });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction("Details", new { id = product.Id });
+    }
+
+
+    //商品詳細資料列表--> Controllers/ProductController.cs
+    public async Task<IActionResult> Details(int id)
+    {
+        var product = await _context.Products
+            .Include(p => p.Images)
+            .Include(p => p.Category)
+            .Include(p => p.Reviews)
+                .ThenInclude(r => r.User) // 加這行才能取得 review.User.Username
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (product == null) return NotFound();
+
+        // 加入登入者角色，View 判斷用
+        ViewBag.Role = HttpContext.Session.GetString("Role");
+
+        return View(product);
+    }
+
+    //add 留言方法
+    [HttpPost]
+    public async Task<IActionResult> Add(Review review)
+    {
+        int? userId = HttpContext.Session.GetInt32("UserId");
+
+        if (userId == null)
+            return RedirectToAction("Login", "Account");
+
+        review.UserId = userId.Value;
+        review.CreatedAt = DateTime.Now;
+        review.Approved = false; // 預設未審核
+
+        _context.Reviews.Add(review);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", "Product", new { id = review.ProductId });
+    }
+
+
     private int GetCurrentUserId()
     {
         return int.Parse(User.Claims.First(c => c.Type == "UserId").Value);

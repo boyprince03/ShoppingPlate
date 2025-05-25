@@ -6,9 +6,9 @@ using ShoppingPlate.Models;
 
 public class CartController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ShoppingPlate.Data.ApplicationDbContext _context;
 
-    public CartController(ShoppingPlateContext context)
+    public CartController(ShoppingPlate.Data.ApplicationDbContext context)
     {
         _context = context;
     }

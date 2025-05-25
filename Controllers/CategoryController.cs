@@ -4,9 +4,9 @@ using ShoppingPlate.Models;
 
 public class CategoryController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public CategoryController(ShoppingPlateContext context)
+    public CategoryController(ApplicationDbContext context)
     {
         _context = context;
     }

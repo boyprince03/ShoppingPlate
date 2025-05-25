@@ -8,11 +8,11 @@ using System.Security.Claims;
 
 public class SellerController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ShoppingPlate.Data.ApplicationDbContext _context;
     private readonly EmailService _emailService;
 
 
-    public SellerController(ShoppingPlateContext context, EmailService emailService)
+    public SellerController(ShoppingPlate.Data.ApplicationDbContext context, EmailService emailService)
     {
         _context = context;
         _emailService = emailService;

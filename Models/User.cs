@@ -39,6 +39,11 @@ namespace ShoppingPlate.Models
 
         // 關聯訂單
         public ICollection<Order> Orders { get; set; } = new List<Order>();
+        //留言板
+        // ✅ 補上與 Review 的一對多關聯
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+
 
 
     }

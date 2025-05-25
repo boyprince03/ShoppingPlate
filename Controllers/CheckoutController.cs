@@ -7,10 +7,10 @@ using ShoppingPlate.Services;
 
 public class CheckoutController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ShoppingPlate.Data.ApplicationDbContext _context;
     private readonly EmailService _emailService;
 
-    public CheckoutController(ShoppingPlateContext context, EmailService emailService)
+    public CheckoutController(ShoppingPlate.Data.ApplicationDbContext context, EmailService emailService)
     {
         _context = context;
         _emailService = emailService;

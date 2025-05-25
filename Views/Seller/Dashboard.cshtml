@@ -35,6 +35,9 @@ else
                                 <h5 class="card-title">@product.Name</h5>
                                 <p class="card-text">價格：$@product.Price</p>
                                 <p class="card-text">庫存：@product.Stock</p>
+                                      <a class="btn btn-sm btn-outline-success" asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">
+                    🔍 查看詳細
+                </a>
                                 <p class="card-text"><span class="badge @(product.IsPublished ? "bg-success" : "bg-secondary")">@(product.IsPublished ? "已上架" : "未上架")</span></p>
                             </div>
                         </div>

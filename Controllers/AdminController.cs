@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 
 public class AdminController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ShoppingPlate.Data.ApplicationDbContext _context;
 
-    public AdminController(ShoppingPlateContext context)
+    public AdminController(ShoppingPlate.Data.ApplicationDbContext context)
     {
         _context = context;
     }

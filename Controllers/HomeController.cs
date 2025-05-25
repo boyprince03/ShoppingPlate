@@ -5,9 +5,9 @@ using ShoppingPlate.Data;
 
 public class HomeController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ShoppingPlate.Data.ApplicationDbContext _context;
 
-    public HomeController(ShoppingPlateContext context)
+    public HomeController(ShoppingPlate.Data.ApplicationDbContext context)
     {
         _context = context;
     }

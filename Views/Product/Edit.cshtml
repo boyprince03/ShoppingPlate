@@ -1,0 +1,127 @@
+﻿@model ShoppingPlate.Models.Product
+@{
+    ViewData["Title"] = "編輯商品";
+    var categories = ViewBag.Categories as List<ShoppingPlate.Models.Category>;
+}
+
+<div class="container mt-4">
+    <h2>編輯商品：@Model.Name</h2>
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">商品名稱</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">商品描述</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Price" class="form-label">商品價格</label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Stock" class="form-label">商品數量</label>
+            <input asp-for="Stock" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label">商品分類</label>
+            <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(categories, "Id", "Name"))">
+                <option value="">請選擇分類</option>
+            </select>
+            <!-- ✅ 新增分類按鈕 -->
+            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                ➕ 新增分類
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">商品圖片（可重新上傳）</label>
+            <input type="file" name="imageFiles" multiple class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">儲存變更</button>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">取消</a>
+    </form>
+</div>
+
+
+
+<!-- 彈出頁面Modal--下方JS -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">分類管理</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group mb-3" id="category-list">
+                    @foreach (var cat in categories)
+                    {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@cat.Name</span>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(@cat.Id)">🗑</button>
+                                    </div>
+                                </li>
+                    }
+                </ul>
+
+                <div class="input-group">
+                    <input type="text" id="newCategoryName" class="form-control" placeholder="輸入新分類" />
+                    <button class="btn btn-primary" onclick="addCategory()">新增</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+            <script>
+                function addCategory() {
+                    const name = document.getElementById('newCategoryName').value.trim();
+                    if (!name) return alert("請輸入分類名稱");
+
+                    fetch('/Category/Add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name })
+                    })
+                    .then(res => res.json())
+                    .then(cat => {
+                        const dropdown = document.getElementById("CategoryId");
+                        const option = new Option(cat.name, cat.id, true, true);
+                            option.selected = true;  //務必加入
+                        dropdown.appendChild(option);
+                        dropdown.value = cat.id;
+                        dropdown.dispatchEvent(new Event("change")); // Razor 綁定
+
+                        const list = document.getElementById("category-list");
+                        list.innerHTML += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>${cat.name}</span>
+                                <div><button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id})">🗑</button></div>
+                            </li>
+                        `;
+                        document.getElementById("newCategoryName").value = "";
+                        bootstrap.Modal.getInstance(document.getElementById("categoryModal")).hide();
+                    });
+                }
+
+                function deleteCategory(id) {
+                    fetch(`/Category/Delete/${id}`, { method: "POST" })
+                        .then(() => location.reload());
+                }
+            </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

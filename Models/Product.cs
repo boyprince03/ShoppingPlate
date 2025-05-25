@@ -35,6 +35,10 @@ namespace ShoppingPlate.Models
 
         // 多張圖片的關聯
         public ICollection<ProductImage>? Images { get; set; }
+        //留言板
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+
     }
 }
 

@@ -11,9 +11,9 @@ using System.Security.Claims;
 
 public class AccountController : Controller
 {
-    private readonly ShoppingPlateContext _context;
+    private readonly ShoppingPlate.Data.ApplicationDbContext _context;
 
-    public AccountController(ShoppingPlateContext context)
+    public AccountController(ShoppingPlate.Data.ApplicationDbContext context)
     {
         _context = context;
     }
@@ -36,6 +36,8 @@ public class AccountController : Controller
         HttpContext.Session.SetInt32("UserId", user.Id);
         HttpContext.Session.SetString("Username", user.Username);
         HttpContext.Session.SetInt32("LoginRole", (int)user.LoginRole);
+        HttpContext.Session.SetString("Role", user.LoginRole.ToString());  // 假設 user.LoginRole 是 enum
+
     }
 
     // ✅ 註冊頁面

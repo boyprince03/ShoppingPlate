@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // 註冊資料庫服務
-builder.Services.AddDbContext<ShoppingPlateContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Session
@@ -42,7 +42,7 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ShoppingPlateContext>();
+    var db = scope.ServiceProvider.GetRequiredService<ShoppingPlate.Data.ApplicationDbContext>();
     DbInitializer.Initialize(db); // 執行初始化資料
 }
 

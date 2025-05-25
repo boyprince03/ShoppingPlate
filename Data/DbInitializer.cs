@@ -4,7 +4,7 @@ namespace ShoppingPlate.Data;
 
 public static class DbInitializer
 {
-    public static void Initialize(ShoppingPlateContext context)
+    public static void Initialize(ApplicationDbContext context)
     {
         context.Database.EnsureCreated();
         //// 🧹 Step 1: 清空 Product (必須先清這張，有外鍵指到 Categories)

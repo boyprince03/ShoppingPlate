@@ -9,8 +9,8 @@ namespace ShoppingPlate.Controllers
 {
     public class OrderController : Controller
     {
-        private readonly ShoppingPlateContext _context;
-        public OrderController(ShoppingPlateContext context)
+        private readonly Data.ApplicationDbContext _context;
+        public OrderController(Data.ApplicationDbContext context)
         {
             _context = context;
         }
