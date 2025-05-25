@@ -1,53 +1,85 @@
 ﻿@model ShoppingPlate.Models.User
+
+@using ShoppingPlate.Data
+@using ShoppingPlate.Models
+@inject ApplicationDbContext _context
 @{
     ViewData["Title"] = "帳號設定";
+    var userId = Context.Session.GetInt32("UserId");
+    var roleValue = Context.Session.GetInt32("LoginRole");
+    var role = roleValue.HasValue ? (UserRole?)roleValue : null;
+    bool hasPendingApplication = false;
+
+    if (userId.HasValue && role == UserRole.Customer)
+    {
+        hasPendingApplication = _context.SellerApplications
+            .Any(a => a.UserId == userId.Value && a.Status == ApplicationStatus.Pending);
+    }
 }
 
 <div class="container mt-5" style="max-width: 600px;">
-    <h2 class="mb-4">⚙️ 帳號設定</h2>
+    <h2 class="mb-4">帳號資訊</h2>
 
     <div class="card p-4 shadow-sm">
         <dl class="row">
             <dt class="col-sm-4">身分：</dt>
-<dd class="col-sm-8">
+            <dd class="col-sm-8">
                 @switch (Model.LoginRole)
                 {
                     case UserRole.Admin:
-                    <span class="badge bg-danger">管理員</span>
+                        <span class="badge bg-danger">管理員</span>
                         break;
                     case UserRole.Seller:
-                    <span class="badge bg-success">賣家</span>
+                        <span class="badge bg-success">賣家</span>
                         break;
                     case UserRole.Customer:
                     default:
-                    <span class="badge bg-secondary">顧客</span>
+                        <span class="badge bg-secondary">顧客</span>
                         break;
                 }
-</dd>
+             </dd>
+            <dt class="col-sm-4">姓名：</dt>
+                <dd class="col-sm-8">@Model.Username</dd>
 
+            <dt class="col-sm-4">Email：</dt>
+                <dd class="col-sm-8">@Model.Email</dd>
 
+            <dt class="col-sm-4">電話：</dt>
+                <dd class="col-sm-8">@Model.Phone</dd>
 
-            <dt class="col-sm-4">姓名</dt>
-            <dd class="col-sm-8">@Model.Username</dd>
-
-            <dt class="col-sm-4">Email</dt>
-            <dd class="col-sm-8">@Model.Email</dd>
-
-            <dt class="col-sm-4">電話</dt>
-            <dd class="col-sm-8">@Model.Phone</dd>
+            <dt class="col-sm-4">商店：</dt>
+                <dd class="col-sm-8">
+                @if (Model.SellerApplication != null && Model.SellerApplication.Status == ApplicationStatus.Approved)
+                {
+                    @Model.SellerApplication.StoreName
+                }
+                else
+                {
+            <span class="text-muted">尚未設置商店</span>
+                }
+                </dd>
         </dl>
 
         <div class="d-flex gap-2 mt-3">
-            <a href="/Account/Edit" class="btn btn-outline-primary w-50">✏️ 編輯帳號</a>
+            <a href="/Account/VerifyPassword?returnUrl=/Account/Edit" class="btn btn-outline-primary w-50">✏️ 編輯帳號</a>
 
-            @if (Model.LoginRole != UserRole.Seller && Model.LoginRole != UserRole.Admin)
+
+            @if (Model.LoginRole == UserRole.Customer)
             {
-                        <a href="/Account/UpgradeToSeller" class="btn btn-success w-50">⬆️ 升級成賣家</a>
+                if (hasPendingApplication)
+                {
+                <button class="btn btn-secondary w-50" disabled>⏳ 賣家申請審核中</button>
+                }
+                else
+                {
+                <a href="/Account/ApplySeller" class="btn btn-success w-50">⬆️ 申請成為賣家</a>
+                }
             }
-            else
+            else if (Model.LoginRole == UserRole.Seller || Model.LoginRole == UserRole.Admin)
             {
-                        <button class="btn btn-secondary w-50" disabled>✅ 已是賣家</button>
+        <button class="btn btn-secondary w-50" disabled>✅ 已是賣家</button>
             }
+
         </div>
     </div>
 </div>

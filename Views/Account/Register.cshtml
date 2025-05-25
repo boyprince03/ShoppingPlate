@@ -32,9 +32,11 @@
 
     <form asp-action="Register" asp-controller="Account" method="post" novalidate>
         <div class="mb-3">
-            <label asp-for="Username" class="form-label"></label>
-            <input asp-for="Username" class="form-control" />
-            <span asp-validation-for="Username" class="text-danger small"></span>
+            <label asp-for="Username" class="form-label">帳號</label>
+            <input asp-for="Username" class="form-control"
+                   pattern="^[a-zA-Z0-9]+$"
+                   title="只能輸入英文字母與數字，不能有空格或符號" />
+            <span asp-validation-for="Username" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
@@ -45,8 +47,8 @@
 
         <div class="mb-3">
             <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger small"></span>
+            <input asp-for="Email" class="form-control" type="email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
@@ -54,6 +56,7 @@
             <input asp-for="Password" class="form-control" type="password" />
             <span asp-validation-for="Password" class="text-danger small"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="ConfirmPassword" class="form-label"></label>
             <input asp-for="ConfirmPassword" type="password" class="form-control" />
@@ -71,5 +74,55 @@
 </div>
 
 @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        //
+        document.addEventListener("DOMContentLoaded", function () {
+
+            //  即時驗證 Email
+            const emailInput = document.querySelector("#Email");
+            const emailError = document.createElement("div");
+            emailError.classList.add("text-danger");
+            emailInput.parentNode.appendChild(emailError);
+
+            emailInput.addEventListener("blur", function () {
+                const email = emailInput.value.trim();
+                if (email !== "") {
+                    fetch(`/Account/CheckEmailExists?email=${encodeURIComponent(email)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.exists) {
+                                emailError.textContent = "此 Email 已被註冊";
+                            } else {
+                                emailError.textContent = "";
+                            }
+                        });
+                }
+            });
+
+            // 即時驗證 Username
+            const usernameInput = document.querySelector("#Username");
+            const usernameError = document.createElement("div");
+            usernameError.classList.add("text-danger");
+            usernameInput.parentNode.appendChild(usernameError);
+
+            usernameInput.addEventListener("blur", function () {
+                const username = usernameInput.value.trim();
+                if (username !== "") {
+                    fetch(`/Account/CheckUsernameExists?username=${encodeURIComponent(username)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.exists) {
+                                usernameError.textContent = "此帳號已被使用";
+                            } else {
+                                usernameError.textContent = "";
+                            }
+                        });
+                }
+            });
+
+        });
+    </script>
 }
+
+

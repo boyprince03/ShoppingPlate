@@ -1,6 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+
+
+
+
 namespace ShoppingPlate.Models
 {
     public enum UserRole
@@ -12,16 +16,20 @@ namespace ShoppingPlate.Models
 
     public class User
     {
+
         public int Id { get; set; }
 
-        [Required]
+
+        [Required(ErrorMessage = "帳號為必填")]
+        [RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "帳號只能包含英文字母與數字，且不能有空格")]
         public string Username { get; set; } 
 
         [Required]
         [Phone]
         public string Phone { get; set; } 
 
-        [Required, EmailAddress]
+        [Required(ErrorMessage = "Email 為必填")]
+        [EmailAddress(ErrorMessage ="Email格式不正確")]
         public string Email { get; set; }
 
         [Required]
@@ -42,6 +50,9 @@ namespace ShoppingPlate.Models
         //留言板
         // ✅ 補上與 Review 的一對多關聯
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        //商品總攬
+        public SellerApplication SellerApplication { get; set; }
+
 
 
 

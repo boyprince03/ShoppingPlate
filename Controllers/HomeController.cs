@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShoppingPlate.Models;
-using ShoppingPlate.Data;
+
 
 public class HomeController : Controller
 {

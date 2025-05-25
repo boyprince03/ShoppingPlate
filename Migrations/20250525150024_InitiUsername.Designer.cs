@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShoppingPlate.Data;
 
@@ -11,9 +12,11 @@ using ShoppingPlate.Data;
 namespace ShoppingPlate.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250525150024_InitiUsername")]
+    partial class InitiUsername
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -304,8 +307,7 @@ namespace ShoppingPlate.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("SellerApplications");
                 });
@@ -454,8 +456,8 @@ namespace ShoppingPlate.Migrations
             modelBuilder.Entity("ShoppingPlate.Models.SellerApplication", b =>
                 {
                     b.HasOne("ShoppingPlate.Models.User", "User")
-                        .WithOne("SellerApplication")
-                        .HasForeignKey("ShoppingPlate.Models.SellerApplication", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -484,9 +486,6 @@ namespace ShoppingPlate.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Reviews");
-
-                    b.Navigation("SellerApplication")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

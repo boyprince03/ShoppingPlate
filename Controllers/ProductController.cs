@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ShoppingPlate.Models;
-using ShoppingPlate.Data;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -42,10 +41,6 @@ public class ProductController : Controller
 
         return View("Index", await products.ToListAsync());
     }
-
-
-
-
 
 
     //上架邏輯
@@ -198,7 +193,30 @@ public class ProductController : Controller
         await _context.SaveChangesAsync();
         return RedirectToAction("Details", new { id = product.Id });
     }
+    // 刪除商品（只允許管理員與賣家）
+    [HttpPost]
+    [Authorize(Roles = "Admin,Seller")]
+    public IActionResult Delete(int id)
+    {
+        var product = _context.Products.Find(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+        //刪除圖片
+        foreach (var img in product.Images)
+        {
+            var filePath = Path.Combine(_env.WebRootPath, img.Url.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
 
+        _context.Products.Remove(product);
+        _context.SaveChanges();
+        return RedirectToAction("Index", "Home");
+    }
 
     //商品詳細資料列表--> Controllers/ProductController.cs
     public async Task<IActionResult> Details(int id)

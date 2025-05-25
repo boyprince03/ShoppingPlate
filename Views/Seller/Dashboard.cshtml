@@ -7,6 +7,7 @@
 @model IEnumerable<ShoppingPlate.Models.Product>
 
 <h2>賣家後台</h2>
+@* @Context.Session.GetString("StoreName") *@
 
 
 @if (!Model.Any())
@@ -56,9 +57,3 @@ else
 </div>
 
 
-@if (User.IsInRole("Seller") || User.IsInRole("Admin"))
-{
-        <a asp-controller="Seller" asp-action="Dashboard" class="btn btn-primary">
-            前往 Seller Dashboard
-        </a>
-}

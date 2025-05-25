@@ -1,18 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShoppingPlate.Data;
 using ShoppingPlate.Models;
 using Microsoft.AspNetCore.Authorization;
+using ShoppingPlate.Services;
 
 //[Authorize(Roles = "Admin")]
 
 public class AdminController : Controller
 {
     private readonly ShoppingPlate.Data.ApplicationDbContext _context;
+    private readonly EmailService _emailService;
 
-    public AdminController(ShoppingPlate.Data.ApplicationDbContext context)
+    public AdminController(ShoppingPlate.Data.ApplicationDbContext context, EmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
 
@@ -67,7 +69,7 @@ public class AdminController : Controller
 
         return View(apps);
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> ApproveSeller(int id, bool approve)
     {
@@ -83,11 +85,46 @@ public class AdminController : Controller
         if (approve)
         {
             app.User.LoginRole = UserRole.Seller;
+            _emailService.SendSellerApplicationResult(app.User.Email, app.User.Username, true);
         }
+        else
+        {
+            _emailService.SendSellerApplicationResult(app.User.Email, app.User.Username, false);
+        }
+
 
         await _context.SaveChangesAsync();
         return RedirectToAction("SellerApplications");
     }
+    //商品總攬
+    public async Task<IActionResult> AllProducts(string keyword, string category)
+    {
+        var query = _context.Products
+            .Include(p => p.Images)
+            .Include(p => p.Category)
+            .Include(p => p.Seller)
+            .ThenInclude(s => s.SellerApplication)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            query = query.Where(p => p.Name.Contains(keyword));
+        }
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            query = query.Where(p => p.Category.Name == category);
+        }
+
+        var categories = await _context.Categories.Select(c => c.Name).ToListAsync();
+
+        ViewBag.Categories = categories;
+        ViewBag.Keyword = keyword;
+        ViewBag.SelectedCategory = category;
+
+        return View(await query.ToListAsync());
+    }
+
 
 
 }

@@ -1,8 +1,20 @@
-﻿@using ShoppingPlate.Models
+﻿@using ShoppingPlate.Data
+@using ShoppingPlate.Models
+@inject ApplicationDbContext _context
+
 @{
 	var userId = Context.Session.GetInt32("UserId");
 	var userName = Context.Session.GetString("Username");
+	var isLoggedIn = Context.Session.GetString("IsLoggedIn");
 	var role = (UserRole?)Context.Session.GetInt32("LoginRole");
+	
+	bool hasPendingApplication = false;
+
+	if (role == UserRole.Customer && userId != null)
+	{
+		hasPendingApplication = _context.SellerApplications
+			.Any(a => a.UserId == userId && a.Status == ApplicationStatus.Pending);
+	}
 }
 
 <!DOCTYPE html>
@@ -50,12 +62,21 @@
 							</li>
 						}
 						
-						@if (role == UserRole.Customer)
-						{
-							<li class="nav-item">
-								<a class="nav-link text-primary" asp-controller="Account" asp-action="ApplySeller">申請成為賣家</a>
-							</li>
-						}
+						@* @if (role == UserRole.Customer) *@
+						@* { *@
+						@* 	if (hasPendingApplication) *@
+						@* 	{ *@
+						@* 		<li class="nav-item"> *@
+						@* 			<span class="nav-link text-muted">賣家申請狀態：審核中</span> *@
+						@* 		</li> *@
+						@* 	} *@
+						@* 	else *@
+						@* 	{ *@
+						@* 		<li class="nav-item"> *@
+						@* 			<a class="nav-link text-primary" asp-controller="Account" asp-action="ApplySeller">申請成為賣家</a> *@
+						@* 		</li> *@
+						@* 	} *@
+						@* } *@
 
 						@if (role.HasValue && role == UserRole.Seller || role == UserRole.Admin)
 						{
@@ -70,21 +91,24 @@
 								<a class="nav-link text-danger" asp-controller="Admin" asp-action="Dashboard">回 Admin 首頁</a>
 							</li>
 						}
-						@if (Context.Session.GetString("IsLoggedIn") == "true")
+						@if (isLoggedIn == "true")
 						{
-							<a class="nav-link" href="/Account/Settings">⚙️ 設定</a>
+							<a class="nav-link" href="/Account/Settings">我的帳號</a>
+						}
+						else
+						{
+							<a class="nav-link text-danger">尚未登入</a> <!-- 除錯時可以顯示 -->
 						}
 						
 						<li class="nav-item">
-	<a class="nav-link" asp-controller="Test" asp-action="Shared">🔐 測試共用</a>
-</li>
-<li class="nav-item">
-	<a class="nav-link" asp-controller="Test" asp-action="AdminOnly">🛡 Admin Only</a>
-</li>
-<li class="nav-item">
-	<a class="nav-link" asp-controller="Test" asp-action="SellerOnly">💼 Seller Only</a>
-</li>
-
+							<a class="nav-link" asp-controller="Test" asp-action="Shared">🔐 測試共用</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" asp-controller="Test" asp-action="AdminOnly">🛡 Admin Only</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" asp-controller="Test" asp-action="SellerOnly">💼 Seller Only</a>
+						</li>
 					</ul>
 
 					@if (userId != null)

@@ -7,11 +7,14 @@
 
 <h2 class="mb-4">📊 管理員儀表板</h2>
 
-<div class="mb-3">
-    <a asp-controller="Seller" asp-action="Dashboard" class="btn btn-outline-success">
-        前往 Seller Dashboard
-    </a>
-</div>
+
+@* <div class="mb-3"> *@
+@*     <a asp-controller="Seller" asp-action="Dashboard" class="btn btn-outline-success"> *@
+@*         前往 Seller Dashboard *@
+@*     </a> *@
+@* </div> *@
+
+
 
 <div class="row mb-4">
     <div class="col-md-4">
@@ -38,6 +41,11 @@
             </div>
         </div>
     </div>
+</div>
+<div class="mb-3">
+    <a asp-controller="Admin" asp-action="AllProducts" class="btn btn-outline-dark">
+        📦 商品總覽
+    </a>
 </div>
 
 <!-- 賣家申請通知卡片 -->
@@ -81,8 +89,11 @@
     </div>
 </div>
 
+
 <div class="card mt-4 border-info">
     <div class="card-body">
         <strong>👥 今日來站人數：</strong> @ViewBag.VisitorCount
     </div>
+
 </div>
+

@@ -1,5 +1,14 @@
 ﻿@{
     ViewData["Title"] = "查詢我的訂單";
+    var role = (UserRole?)Context.Session.GetInt32("LoginRole");
+    var userName = "";
+    var userPhone = "";
+
+    if (role == UserRole.Customer||role==UserRole.Seller||role==UserRole.Admin)
+    {
+        userName = Context.Session.GetString("Username") ?? "";
+        userPhone = Context.Session.GetString("Phone") ?? "";
+    }
 }
 
 <h2>查詢訂單</h2>
@@ -7,11 +16,11 @@
 <form method="post">
     <div class="mb-3">
         <label>姓名</label>
-        <input type="text" name="name" class="form-control" required />
+        <input type="text" name="name" class="form-control" required value="@userName" />
     </div>
     <div class="mb-3">
         <label>電話</label>
-        <input type="text" name="phone" class="form-control" required />
+        <input type="text" name="phone" class="form-control" required value="@userPhone" />
     </div>
     <button type="submit" class="btn btn-primary">查詢</button>
 </form>

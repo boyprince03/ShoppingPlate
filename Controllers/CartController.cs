@@ -1,7 +1,6 @@
 ﻿// Controllers/CartController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShoppingPlate.Data;
 using ShoppingPlate.Models;
 
 public class CartController : Controller

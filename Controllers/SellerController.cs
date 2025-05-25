@@ -1,10 +1,10 @@
 ﻿// Controllers/SellerController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShoppingPlate.Data;
+
 using ShoppingPlate.Models;
 using ShoppingPlate.Services;
-using System.Security.Claims;
+
 
 public class SellerController : Controller
 {
@@ -27,24 +27,31 @@ public class SellerController : Controller
             return RedirectToAction("Login", "Account");
 
         var role = (UserRole?)HttpContext.Session.GetInt32("LoginRole");
-        
         if (role != UserRole.Seller && role != UserRole.Admin)
         {
             return Unauthorized();
         }
+
         var user = await _context.Users.FindAsync(userId.Value);
         if (user == null)
             return Unauthorized();
+
+        // 🔽 取得該賣家通過審核的商店名稱
+        var storeName = await _context.SellerApplications
+            .Where(a => a.UserId == userId && a.Status == ApplicationStatus.Approved)
+            .Select(a => a.StoreName)
+            .FirstOrDefaultAsync();
+
+        ViewBag.SellerName = storeName ?? user.Username; // 若找不到商店名稱，就顯示帳號名稱
 
         var myProducts = await _context.Products
             .Where(p => p.SellerId == userId.Value)
             .Include(p => p.Images)
             .ToListAsync();
 
-        ViewBag.SellerName = user.Username;
-
         return View(myProducts); // 傳送 Model 給前端 View
     }
+
 
 
 

@@ -30,6 +30,8 @@ namespace ShoppingPlate.Models
         public Category? Category { get; set; }
 
         public int SellerId { get; set; }
+
+        [ForeignKey("SellerId")]
         public User? Seller { get; set; }
         public int ViewCount { get; set; } = 0; // 新增瀏覽次數
 

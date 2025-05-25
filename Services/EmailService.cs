@@ -101,6 +101,43 @@ public class EmailService
             smtpClient.Send(mail);
         }
     }
+    // 賣家申請結果通知
+    public void SendSellerApplicationResult(string toEmail, string userName, bool isApproved)
+    {
+        var smtpClient = CreateSmtpClient();
+
+        var subject = isApproved ? "✅ 賣家申請審核通過通知" : "❌ 賣家申請未通過通知";
+
+        var body = new StringBuilder();
+        body.AppendLine($"親愛的 {userName}，您好：");
+        body.AppendLine();
+
+        if (isApproved)
+        {
+            body.AppendLine("恭喜您，您的賣家申請已通過審核！");
+            body.AppendLine("您現在可以登入賣家後台上架商品並管理訂單。");
+        }
+        else
+        {
+            body.AppendLine("很遺憾通知您，您的賣家申請未能通過審核。");
+            body.AppendLine("若有任何疑問，請聯絡客服人員協助處理。");
+        }
+
+        body.AppendLine();
+        body.AppendLine("感謝您使用 ShoppingPlate 購物平台！");
+
+        var mail = new MailMessage
+        {
+            From = new MailAddress(_config["Smtp:From"], "ShoppingPlate 購物平台"),
+            Subject = subject,
+            Body = body.ToString(),
+            IsBodyHtml = false
+        };
+
+        mail.To.Add(toEmail);
+        smtpClient.Send(mail);
+    }
+
 
 
 }

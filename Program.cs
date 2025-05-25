@@ -57,8 +57,10 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
+
 app.UseAuthentication();  
 app.UseAuthorization();   
+
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // 靜態資源的方法(圖片)
 

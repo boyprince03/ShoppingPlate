@@ -1,0 +1,53 @@
+﻿@model List<ShoppingPlate.Models.Product>
+@{
+    ViewData["Title"] = "商品總覽";
+    var categories = ViewBag.Categories as List<string>;
+    var keyword = ViewBag.Keyword as string;
+    var selectedCategory = ViewBag.SelectedCategory as string;
+}
+
+<h2 class="mb-4">📦 商品總覽</h2>
+
+<form method="get" class="row mb-4">
+    <div class="col-md-4">
+        <input type="text" name="keyword" value="@keyword" class="form-control" placeholder="輸入商品名稱關鍵字" />
+    </div>
+    <div class="col-md-3">
+        <select name="category" class="form-select" onchange="this.form.submit()">
+            <option value="">全部分類</option>
+            @foreach (var c in categories)
+            {
+                    <option value="@c" selected="@(c == selectedCategory ? "selected" : null)">@c</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">搜尋</button>
+    </div>
+</form>
+
+<div class="row">
+    @foreach (var p in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                @if (p.Images != null && p.Images.Any())
+                {
+                        <img src="@p.Images.First().Url" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                }
+                else
+                {
+                        <div class="text-center p-5 text-muted">無圖片</div>
+                }
+
+                <div class="card-body">
+                    <h5 class="card-title">@p.Name</h5>
+                    <p class="card-text">價格：$@p.Price</p>
+                    <p class="card-text">分類：@p.Category?.Name</p>
+                    <p class="card-text">狀態：<span class="badge @(p.IsPublished ? "bg-success" : "bg-secondary")">@((p.IsPublished ? "已上架" : "未上架"))</span></p>
+                    <p class="card-text">商店名稱：@p.Seller?.SellerApplication?.StoreName</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

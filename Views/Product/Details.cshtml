@@ -1,4 +1,6 @@
 ﻿@model ShoppingPlate.Models.Product
+@using Microsoft.AspNetCore.Http
+
 @{
     ViewData["Title"] = "商品詳細";
     var userRole = ViewBag.Role as string;
@@ -35,7 +37,14 @@
 
             @if (userRole == "Admin" || userRole == "Seller")
             {
-                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">編輯商品</a>
+                <div>
+                          <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">編輯商品</a>
+                        <form asp-action="Delete" asp-controller="Product" method="post" onsubmit="return confirm('確定要刪除這個商品嗎？');">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-danger">🗑 刪除商品</button>
+                        </form>
+                </div>
+                  
             }
         </div>
     </div>

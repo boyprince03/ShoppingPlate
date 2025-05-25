@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShoppingPlate.Data;
-using ShoppingPlate.Services;
-using ShoppingPlate.Models;
-using ShoppingPlate.Services;
+
+
 
 namespace ShoppingPlate.Controllers
 {

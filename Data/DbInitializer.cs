@@ -7,7 +7,8 @@ public static class DbInitializer
     public static void Initialize(ApplicationDbContext context)
     {
         context.Database.EnsureCreated();
-        //// 🧹 Step 1: 清空 Product (必須先清這張，有外鍵指到 Categories)
+
+        //// 🧹 Step 1: 清空 Product (有外鍵指到 Categories-->先清)
         //if (context.Products.Any())
         //{
         //    context.Products.RemoveRange(context.Products);
@@ -20,7 +21,8 @@ public static class DbInitializer
         //    context.Categories.RemoveRange(context.Categories);
         //    context.SaveChanges();
         //}
-        // 管理員
+
+        // 測試管理員
         var admin = context.Users.FirstOrDefault(u => u.Username == "admin" && u.LoginRole == UserRole.Admin);
         if (admin == null)
         {
@@ -35,7 +37,7 @@ public static class DbInitializer
             };
             context.Users.Add(admin);
         }
-
+        //測試賣家
         var seller = context.Users.FirstOrDefault(u => u.Username == "demoSeller" && u.LoginRole == UserRole.Seller);
         if (seller == null)
         {
@@ -50,7 +52,7 @@ public static class DbInitializer
             };
             context.Users.Add(seller);
         }
-
+        //測試買家
         var customer = context.Users.FirstOrDefault(u => u.Username == "demoCustomer" && u.LoginRole == UserRole.Customer);
         if (customer == null)
         {
@@ -67,6 +69,34 @@ public static class DbInitializer
         }
 
         context.SaveChanges();
+        // 預設賣家商店資料
+        if (!context.SellerApplications.Any())
+        {
+            var sellerApplications = new List<SellerApplication>
+    {
+        new SellerApplication
+        {
+            UserId = admin.Id,
+            StoreName = "EzGo",
+            Status = ApplicationStatus.Approved,
+            ApplyDate = DateTime.Now,
+            ResponseDate = DateTime.Now
+        },
+        new SellerApplication
+        {
+            UserId = seller.Id,
+            StoreName = "SellerTest",
+            Status = ApplicationStatus.Approved,
+            ApplyDate = DateTime.Now,
+            ResponseDate = DateTime.Now
+        }
+    };
+
+            context.SellerApplications.AddRange(sellerApplications);
+            context.SaveChanges();
+        }
+
+
 
 
         // 分類（僅補缺）

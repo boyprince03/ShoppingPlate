@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShoppingPlate.Data;
+
 using ShoppingPlate.Models;
-using Microsoft.EntityFrameworkCore;
+
 
 public class ReviewController : Controller
 {
