@@ -1,0 +1,73 @@
+﻿@model List<ShoppingPlate.Models.SellerApplication>
+
+@{
+    ViewData["Title"] = "店鋪管理";
+    var keyword = Context.Request.Query["search"];
+}
+
+<h2 class="mb-4">🏬 店鋪管理</h2>
+
+<!-- 🔍 搜尋功能 -->
+<form method="get" class="row mb-4">
+    <div class="col-md-4">
+        <input type="text" name="search" value="@keyword" class="form-control" placeholder="輸入店名或申請人名稱" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary">搜尋</button>
+    </div>
+</form>
+
+@if (Model == null || !Model.Any())
+{
+        <div class="alert alert-info">找不到符合條件的商店。</div>
+}
+else
+{
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>店鋪名稱</th>
+                    <th>申請人</th>
+                    <th>Email</th>
+                    <th>電話</th>
+                    <th>申請時間</th>
+                    <th>報表</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var shop in Model)
+            {
+                        <tr>
+                            <td>@shop.StoreName</td>
+                            <td>@shop.User.NameUser</td>
+                            <td>@shop.User.Email</td>
+                            <td>@shop.User.Phone</td>
+                            <td>@shop.ApplyDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                <a asp-action="StoreReport" asp-route-id="@shop.Id" class="btn btn-sm btn-info">📊 報表</a>
+                            </td>
+
+                                    <td>
+                        @if (shop.IsDisabled)
+                        {
+                    <span class="badge bg-danger">已停用</span>
+                    <form asp-action="EnableStore" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@shop.Id" />
+                        <button class="btn btn-sm btn-outline-success ms-2">啟用</button>
+                    </form>
+                        }
+                        else
+                        {
+                    <form asp-action="DisableStore" method="post" style="display:inline;" onsubmit="return confirm('確定要停用此商店？');">
+                        <input type="hidden" name="id" value="@shop.Id" />
+                        <button class="btn btn-sm btn-danger">停用</button>
+                    </form>
+                        }
+        </td>
+
+                        </tr>
+            }
+            </tbody>
+        </table>
+}

@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "商店報表";
+}
+
+<h2 class="mb-4">📊 商店報表：@ViewBag.StoreName</h2>
+
+<ul class="list-group mb-4">
+    <li class="list-group-item"><strong>申請人：</strong>@ViewBag.SellerName</li>
+    <li class="list-group-item"><strong>總銷售額：</strong>$@ViewBag.TotalSales</li>
+    <li class="list-group-item"><strong>總訂單數：</strong>@ViewBag.OrderCount</li>
+    <li class="list-group-item"><strong>上架商品總數：</strong>@ViewBag.ProductCount</li>
+    <li class="list-group-item"><strong>最熱銷商品：</strong>@ViewBag.TopProduct</li>
+</ul>
+
+<a asp-action="StoreManagement" class="btn btn-outline-secondary">← 返回商店管理</a>

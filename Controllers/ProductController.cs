@@ -42,8 +42,27 @@ public class ProductController : Controller
         return View("Index", await products.ToListAsync());
     }
 
+    // 上下架按鈕功能
+    [HttpPost]
+    public IActionResult TogglePublish(int id)
+    {
+        var product = _context.Products.FirstOrDefault(p => p.Id == id);
+        if (product == null)
+        {
+            TempData["Error"] = "找不到該商品。";
+            return RedirectToAction("SellerDashboard", "Seller");
+        }
 
-    //上架邏輯
+        product.IsPublished = !product.IsPublished;
+        _context.SaveChanges();
+
+        return RedirectToAction("Dashboard", "Seller");
+
+    }
+
+
+
+    // 上架頁面 (GET)
     [HttpGet]
     public IActionResult Create(int? selectedCategoryId = null)
     {
@@ -56,21 +75,42 @@ public class ProductController : Controller
         if (role != (int)UserRole.Seller && role != (int)UserRole.Admin)
             return RedirectToAction("AccessDenied", "Account");
 
+        // 檢查是否被停用
+        var sellerApp = _context.SellerApplications
+            .FirstOrDefault(s => s.UserId == userId && s.Status == ApplicationStatus.Approved);
+
+        if (sellerApp == null || sellerApp.IsDisabled)
+        {
+            TempData["Error"] = "❌ 您的商店目前已被停用或尚未核准，無法使用商品上架功能。";
+            return RedirectToAction("Dashboard", "Seller");
+        }
+
         ViewBag.Categories = _context.Categories.ToList();
-        ViewBag.SelectedCategoryId = selectedCategoryId;
-        ViewBag.Categories = _context.Categories.ToList();
+        ViewBag.SelectedCategoryId = selectedCategoryId ?? TempData["SelectedCategoryId"];
         ViewBag.HasUploaded = TempData["HasUploaded"] as bool? ?? false;
-        ViewBag.SelectedCategoryId = TempData["SelectedCategoryId"] ?? null;
         ViewBag.SuccessMessage = TempData["SuccessMessage"]?.ToString();
 
         return View();
     }
 
-
+    // 上架商品 (POST)
     [HttpPost]
     public async Task<IActionResult> Create(Product product, List<IFormFile> imageFiles)
     {
         int? userId = HttpContext.Session.GetInt32("UserId");
+
+        if (userId == null)
+            return RedirectToAction("Login", "Account");
+
+        // 檢查是否被停用
+        var sellerApp = _context.SellerApplications
+            .FirstOrDefault(s => s.UserId == userId && s.Status == ApplicationStatus.Approved);
+
+        if (sellerApp == null || sellerApp.IsDisabled)
+        {
+            TempData["Error"] = "❌ 您的商店目前已被停用或尚未核准，無法使用商品上架功能。";
+            return RedirectToAction("Dashboard", "Seller");
+        }
 
         if (!ModelState.IsValid)
         {
@@ -86,11 +126,11 @@ public class ProductController : Controller
 
             ViewBag.Categories = _context.Categories.ToList();
             ViewBag.SelectedCategoryId = product.CategoryId;
-            ViewBag.HasUploaded = false; // 顯示「上架商品」
+            ViewBag.HasUploaded = false;
             return View(product);
         }
 
-        //  圖片處理
+        // 處理圖片
         if (imageFiles != null && imageFiles.Count > 0)
         {
             product.Images = new List<ProductImage>();
@@ -115,12 +155,13 @@ public class ProductController : Controller
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
-        //  導回原頁面並顯示「繼續上架」
         TempData["HasUploaded"] = true;
         TempData["SelectedCategoryId"] = product.CategoryId;
         TempData["SuccessMessage"] = "✅ 商品上架成功！";
+
         return RedirectToAction("Create");
     }
+
 
     //編輯商品: 
     [HttpGet]

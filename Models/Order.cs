@@ -12,9 +12,10 @@ namespace ShoppingPlate.Models
         public string Status { get; set; } = "處理中"; // 處理中、已出貨、已完成、已取消
 
         public decimal TotalAmount { get; set; }
-
+        //若是會員
         public int? UserId { get; set; }
         public User? User { get; set; }
+        //若是訪客(未登入)
         public string CustomerName { get; set; }
         public string CustomerPhone { get; set; }
         public string CustomerEmail { get; set; }

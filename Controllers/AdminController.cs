@@ -70,6 +70,7 @@ public class AdminController : Controller
         return View(apps);
     }
     [Authorize(Roles = "Admin")]
+
     [HttpPost]
     public async Task<IActionResult> ApproveSeller(int id, bool approve)
     {
@@ -123,6 +124,104 @@ public class AdminController : Controller
         ViewBag.SelectedCategory = category;
 
         return View(await query.ToListAsync());
+    }
+    // 店鋪管理頁面
+    public IActionResult StoreManagement(string? search)
+    {
+        var query = _context.SellerApplications
+            .Where(a => a.Status == ApplicationStatus.Approved)
+            .Include(a => a.User)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(a =>
+                a.StoreName.Contains(search) ||
+                a.User.NameUser.Contains(search));
+        }
+
+        return View(query.ToList());
+    }
+    [HttpPost]
+    public IActionResult EnableStore(int id)
+    {
+        var store = _context.SellerApplications.Find(id);
+        if (store != null && store.IsDisabled)
+        {
+            store.IsDisabled = false;
+            _context.SaveChanges();
+        }
+
+        return RedirectToAction("StoreManagement");
+    }
+
+
+    [HttpPost]
+    public IActionResult DisableStore(int id)
+    {
+        var store = _context.SellerApplications.Find(id);
+        if (store != null && !store.IsDisabled)
+        {
+            store.IsDisabled = true;
+            _context.SaveChanges();
+        }
+
+        return RedirectToAction("StoreManagement");
+    }
+
+
+    public IActionResult StoreReport(int id)
+    {
+        var store = _context.SellerApplications
+            .Include(s => s.User)
+            .FirstOrDefault(s => s.Id == id);
+
+        if (store == null) return NotFound();
+
+        var sellerId = store.User.Id;
+
+        // 該商店所有商品
+        var products = _context.Products
+            .Where(p => p.SellerId == sellerId)
+            .ToList();
+
+        var productIds = products.Select(p => p.Id).ToList();
+
+        // 所有訂單明細與統計
+        var orderDetails = _context.OrderDetails
+            .Include(od => od.Product)
+            .Where(od => productIds.Contains(od.ProductId))
+            .ToList();
+
+        var totalSales = orderDetails.Sum(od => od.Quantity * od.UnitPrice);
+        var orderCount = orderDetails
+            .Select(od => od.OrderId)
+            .Distinct()
+            .Count();
+
+        var topProduct = orderDetails
+            .GroupBy(od => od.Product.Name)
+            .Select(g => new { Name = g.Key, Total = g.Sum(x => x.Quantity) })
+            .OrderByDescending(g => g.Total)
+            .FirstOrDefault();
+
+        ViewBag.StoreName = store.StoreName;
+        ViewBag.SellerName = store.User.NameUser;
+        ViewBag.TotalSales = totalSales;
+        ViewBag.OrderCount = orderCount;
+        ViewBag.ProductCount = products.Count;
+        ViewBag.TopProduct = topProduct != null ? $"{topProduct.Name}（{topProduct.Total} 件）" : "無資料";
+
+        return View();
+    }
+
+
+
+    // 帳號管理頁面（預留）
+    public IActionResult UserManagement()
+    {
+        // TODO: 未來可串黑名單 / VIP 功能
+        return View(); // 建立 Views/Admin/UserManagement.cshtml
     }
 
 

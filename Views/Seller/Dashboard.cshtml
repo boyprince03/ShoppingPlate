@@ -4,6 +4,11 @@
 
 <h2>歡迎 @ViewBag.SellerName</h2>
 <p>這是賣家的後台首頁，之後可加入訂單、商品管理功能。</p>
+@if (TempData["Error"] != null)
+{
+        <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 @model IEnumerable<ShoppingPlate.Models.Product>
 
 <h2>賣家後台</h2>
@@ -36,18 +41,22 @@ else
                                 <h5 class="card-title">@product.Name</h5>
                                 <p class="card-text">價格：$@product.Price</p>
                                 <p class="card-text">庫存：@product.Stock</p>
-                                      <a class="btn btn-sm btn-outline-success" asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">
-                    🔍 查看詳細
-                </a>
-                                <p class="card-text"><span class="badge @(product.IsPublished ? "bg-success" : "bg-secondary")">@(product.IsPublished ? "已上架" : "未上架")</span></p>
+                        <p class="card-text d-flex align-items-center gap-2">
+                            <span class="badge @(product.IsPublished ? "bg-success" : "bg-secondary")">@(product.IsPublished ? "已上架" : "未上架")</span>
+                        </p>
+                            <a class="btn btn-sm btn-outline-success" asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">🔍 查看詳細</a>
+                         <form asp-action="TogglePublish" asp-controller="Product" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@product.Id" />
+                        <button type="submit" class="btn btn-sm @(product.IsPublished ? "btn-outline-warning" : "btn-outline-primary")">
+                                @(product.IsPublished ? "下架" : "上架")
+                        </button>
+                    </form>
                             </div>
                         </div>
                     </div>
         }
         </div>
 }
-
-
 
 <div class="mt-4">
     <a href="/Seller/Orders" class="btn btn-primary">查看訂單</a>

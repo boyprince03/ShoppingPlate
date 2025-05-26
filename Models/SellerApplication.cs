@@ -20,5 +20,6 @@ namespace ShoppingPlate.Models
 
         public DateTime ApplyDate { get; set; } = DateTime.Now;
         public DateTime? ResponseDate { get; set; }
+        public bool IsDisabled { get; set; } = false;
     }
 }

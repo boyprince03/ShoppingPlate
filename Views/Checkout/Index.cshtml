@@ -78,18 +78,21 @@
 </form>
 
 <!-- 密碼欄位顯示控制-->
-<script>
-    function togglePassword() {
-        var checkbox = document.getElementById('registerCheckbox');
-        var passwordField = document.getElementById('passwordField');
-        passwordField.style.display = checkbox.checked ? 'block' : 'none';
-    }
-    // 已登入會員資訊直接帶入
-    function fillUserInfo() {
-        document.querySelector('[name="name"]').value = "@ViewData["Name"]";
-        document.querySelector('[name="phone"]').value = "@ViewData["Phone"]";
-        document.querySelector('[name="email"]').value = "@ViewData["Email"]";
-        document.querySelector('[name="address"]').value = "@ViewData["Address"]";
-    }
+@section scripts{
+        <script>
+        function togglePassword() {
+            var checkbox = document.getElementById('registerCheckbox');
+            var passwordField = document.getElementById('passwordField');
+            passwordField.style.display = checkbox.checked ? 'block' : 'none';
+        }
+        // 已登入會員資訊直接帶入
+        function fillUserInfo() {
+            document.querySelector('[name="name"]').value = "@ViewData["Name"]";
+            document.querySelector('[name="phone"]').value = "@ViewData["Phone"]";
+            document.querySelector('[name="email"]').value = "@ViewData["Email"]";
+            document.querySelector('[name="address"]').value = "@ViewData["Address"]";
+        }
 
-</script>
+    </script>
+}
+
