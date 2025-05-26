@@ -12,7 +12,7 @@ using ShoppingPlate.Data;
 namespace ShoppingPlate.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250526162117_InitialCreate")]
+    [Migration("20250526165233_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

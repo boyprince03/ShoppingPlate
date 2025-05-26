@@ -18,6 +18,7 @@ dotnet ef database update --verbose
 //刪除資料庫
 dotnet ef database drop
 dotnet ef database drop --force
+dotnet ef database update
 
 git 指令集
 

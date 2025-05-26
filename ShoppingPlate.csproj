@@ -10,16 +10,13 @@
     <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0-nanoserver-1809</ContainerBaseImage>
     <UserSecretsId>2659ac4b-f851-47eb-9c14-48bbae70e2e6</UserSecretsId>
     <DockerfileContext>.</DockerfileContext>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\**" />
     <Compile Remove="temp\**" />
-    <Content Remove="Migrations\**" />
     <Content Remove="temp\**" />
-    <EmbeddedResource Remove="Migrations\**" />
     <EmbeddedResource Remove="temp\**" />
-    <None Remove="Migrations\**" />
     <None Remove="temp\**" />
   </ItemGroup>
 
@@ -28,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="Views\Order\" />
   </ItemGroup>
 

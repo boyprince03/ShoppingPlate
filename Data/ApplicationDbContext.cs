@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShoppingPlate.Models;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace ShoppingPlate.Data
 {
