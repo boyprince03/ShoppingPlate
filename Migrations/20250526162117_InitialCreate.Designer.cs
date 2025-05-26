@@ -12,7 +12,7 @@ using ShoppingPlate.Data;
 namespace ShoppingPlate.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250525104944_InitialCreate")]
+    [Migration("20250526162117_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -307,7 +307,8 @@ namespace ShoppingPlate.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("SellerApplications");
                 });
@@ -330,6 +331,9 @@ namespace ShoppingPlate.Migrations
 
                     b.Property<int>("LoginRole")
                         .HasColumnType("int");
+
+                    b.Property<string>("NameUser")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -456,8 +460,8 @@ namespace ShoppingPlate.Migrations
             modelBuilder.Entity("ShoppingPlate.Models.SellerApplication", b =>
                 {
                     b.HasOne("ShoppingPlate.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("SellerApplication")
+                        .HasForeignKey("ShoppingPlate.Models.SellerApplication", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -486,6 +490,9 @@ namespace ShoppingPlate.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("SellerApplication")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

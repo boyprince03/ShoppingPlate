@@ -5,6 +5,12 @@ dotnet tool install --global dotnet-ef
 dotnet ef migrations add InitialCreate -->add 自訂名稱
 //更新資料庫（執行 Migration）
 dotnet ef database update
+dotnet ef database update --project ShoppingPlate --startup-project ShoppingPlate
+dotnet ef database update --project ./ShoppingPlate/ShoppingPlate.csproj --startup-project ./ShoppingPlate/ShoppingPlate.csproj
+//列出目前的資料庫 vs 模型差異
+dotnet ef migrations script
+//list
+dotnet ef migrations list
 //刪除 Migration（刪除資料表結構快照）
 dotnet ef migrations remove
 //檢查 DB 連線與遷移狀態

@@ -329,6 +329,9 @@ namespace ShoppingPlate.Migrations
                     b.Property<int>("LoginRole")
                         .HasColumnType("int");
 
+                    b.Property<string>("NameUser")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

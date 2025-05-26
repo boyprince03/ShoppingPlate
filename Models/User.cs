@@ -22,7 +22,10 @@ namespace ShoppingPlate.Models
 
         [Required(ErrorMessage = "帳號為必填")]
         [RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "帳號只能包含英文字母與數字，且不能有空格")]
-        public string Username { get; set; } 
+        public string Username { get; set; }
+
+
+        public string? NameUser { get; set; }
 
         [Required]
         [Phone]
@@ -34,21 +37,17 @@ namespace ShoppingPlate.Models
 
         [Required]
         public string Password { get; set; }
-        [Required]
         [NotMapped]
         [Compare("Password", ErrorMessage = "兩次輸入的密碼不一致")]
         public string? ConfirmPassword { get; set; }
-
-
         public string Address { get; set; } = string.Empty;
-
         public UserRole LoginRole { get; set; } = UserRole.Customer;
-
 
         // 關聯訂單
         public ICollection<Order> Orders { get; set; } = new List<Order>();
         //留言板
-        // ✅ 補上與 Review 的一對多關聯
+
+        //補上與 Review 的一對多關聯
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         //商品總攬
         public SellerApplication SellerApplication { get; set; }
