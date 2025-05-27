@@ -37,6 +37,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddSession(); // 用 Session 儲存 UserId
 
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
 
 var app = builder.Build();
 // 啟用 Session
@@ -48,12 +54,6 @@ using (var scope = app.Services.CreateScope())
     DbInitializer.Initialize(db); // 執行初始化資料
 }
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(int.Parse(port));
-});
 
 // 中介軟體
 if (!app.Environment.IsDevelopment())
