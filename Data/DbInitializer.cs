@@ -1,4 +1,5 @@
-﻿using ShoppingPlate.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ShoppingPlate.Models;
 
 namespace ShoppingPlate.Data;
 
@@ -6,7 +7,16 @@ public static class DbInitializer
 {
     public static void Initialize(ApplicationDbContext context)
     {
-        context.Database.EnsureCreated();
+        // ✅ 自動建立資料庫（只對 SQLite 或 InMemory 有效）
+        if (context.Database.IsSqlite())
+        {
+            context.Database.EnsureCreated();
+        }
+        else
+        {
+            // SQL Server 等會使用 migration 邏輯（可省略或換成 Migrate）
+            context.Database.Migrate(); // 若有 migration 才會有效
+        }
 
         //// 🧹 Step 1: 清空 Product (有外鍵指到 Categories-->先清)
         //if (context.Products.Any())
