@@ -11,6 +11,7 @@
     <UserSecretsId>2659ac4b-f851-47eb-9c14-48bbae70e2e6</UserSecretsId>
     <DockerfileContext>.</DockerfileContext>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,6 +51,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.5" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
   </ItemGroup>
 
 </Project>

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using ShoppingPlate.Data; // DbContext 的命名空間
 using ShoppingPlate.Services;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -46,6 +48,12 @@ using (var scope = app.Services.CreateScope())
     DbInitializer.Initialize(db); // 執行初始化資料
 }
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
 
 // 中介軟體
 if (!app.Environment.IsDevelopment())
